@@ -1,0 +1,33 @@
+name: Demo Build and Deploy
+on:
+  push:
+    branches: [main]
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and push
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Configure AWS credentials in ENV
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build, configure and push to ECR
+        id: build
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          TAG: ${{ github.sha }}
+        run: |
+          docker build -t $REGISTRY/demo:$TAG -t $REGISTRY/demo:dev . 
+          docker push $REGISTRY/demo --all-tags    
+          
