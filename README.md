@@ -25,7 +25,7 @@ Dockerfile is in the root folder. Docker image is built & pushed to AWS ECR afte
 You can observe pipeline in GitHub Actions folder .github. There are 3 pipelines:
 
 - main.yaml - Builds & tests & pushes to the repo hello application
-- demo-chart.yaml - Pachages & pushed helm chart
+- demo-chart.yaml - Packages & pushed helm chart
 - terraform.yaml - To manually run terraform apply/destroy to manage infrastructure
 
 ## Part 3: Working with Helm & Terraform
@@ -46,4 +46,10 @@ Basically to reproduce the env there are such steps:
 - Run terraform apply in the bootstrap folder to init S3 bucket. (For fresh install delete terraform.tfstate)
 - Either locally or using GitHub actions run terraform apply (wait 20min)
 - Login to AWS console or use AWS CLI.
+- Install helm chart
+
+```
+helm install --set registry=$REGISTRY demo oci://$REGISTRY/demo-chart
+```
+
 - Test or use created cluster
