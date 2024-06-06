@@ -34,23 +34,13 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           TAG: ${{ github.sha }}
         run: |
-          echo "docker_pass=$(aws ecr get-login-password)\n" >> $GITHUB_OUTPUT
-          declare -A -r repos=(
-            ["demo-wh"]="wh"
-            ["demo-service-a"]="service-a"
-            #["demo-service-b"]="service-b"
-            #["demo-service-c"]="service-c"
-          )
-          for b in "${!repos[@]}"; do
-            echo "Building $b from ${repos[$b]}"            
-            docker build -t $REGISTRY/$b:dev ${repos[$b]}
-            # AWS needs the repository to be created before first push
-            aws ecr create-repository --repository-name $b || echo "repo exists"           
-            docker push $REGISTRY/$b --all-tags    
-          done
+          docker build -t $REGISTRY/demo:$TAG -t $REGISTRY/demo:dev . 
+          docker push $REGISTRY/demo --all-tags
+          helm package demo-chart --app-version $TAG --set registry=$REGISTRY
+          helm push demo-chart-0.1.0.tgz oci://$REGISTRY
+
     outputs:
       registry: ${{ steps.login-ecr.outputs.registry }}
-      docker_pass: ${{ steps.build.outputs.docker_pass }}
 
   terraform:
     runs-on: ubuntu-latest
@@ -74,40 +64,11 @@ jobs:
       - name: Terraform ${{ github.event.inputs.action }}
         working-directory: terraform
         env:
-          TF_VAR_cloudflare_api_token: ${{ secrets.CF_API_TOKEN }}
-          TF_VAR_cloudflare_zone_id: ${{ secrets.CF_ZONE_ID }}
-          TF_VAR_ssh_key_pub: ${{ secrets.SSH_KEY_PUB }}
           TF_VAR_region: ${{ secrets.AWS_REGION }}
           TF_VAR_registry: ${{ needs.build_n_push.outputs.registry }}
-          TF_VAR_docker_pass: ${{ needs.build_n_push.outputs.docker_pass }}
           TF_VAR_environment: dev
           TF_VAR_project: demo
         run: |
           terraform init -input=false
           terraform validate -no-color
           terraform ${{ github.event.inputs.action }} -input=false -auto-approve
-
-  deploy:
-    if: ${{ github.event.inputs.action == 'apply' }}
-    runs-on: ubuntu-latest
-    name: Deploy
-    needs: [build_n_push, terraform]
-    steps:
-      - name: Git clone the repositoy
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: deploy
-
-      - name: Configure AWS credentials in ENV
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: ${{ secrets.AWS_ROLE }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: AWS CodeDeploy
-        uses: sourcetoad/aws-codedeploy-action@v1
-        with:
-          codedeploy_name: dev_demo_app
-          codedeploy_group: dev_demo_deployment
-          s3_bucket: demo.terraform.config
-          s3_folder: dev-codedeploy

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo
+  template:
+    metadata:
+      labels:
+        lbtype: external
+        app: demo
+    spec:
+      containers:
+      - name: demo
+        image: {{ .Values.registry }}/{{ .Values.repo }}:{{ .Values.tag }}
+        ports:
+        - name: hello
+          containerPort: 3000
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 250m
+          limits:
+            memory: 256Mi
+            cpu: 250m

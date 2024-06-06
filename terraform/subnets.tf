@@ -9,9 +9,9 @@ resource "aws_subnet" "cluster_private" {
   )
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   tags                    = { 
-    Name                                     = "${local.name_prefix}_subnet_${count.index}" 
-    "kubernetes.io/role/internal-elb"        = "1"
-    "kubernetes.io/cluster/demo-eks-cluster" = "owned"
+    Name                              = "${local.name_prefix}_subnet_priv_${count.index}" 
+    "kubernetes.io/role/internal-elb" = "1"
+    "kubernetes.io/cluster/eks-demo"  = "owned"
   }
 }
 
@@ -24,10 +24,11 @@ resource "aws_subnet" "cluster_public" {
     20 + count.index      # net index will be 10 + zone index
   ) 
   availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
   tags                    = { 
-    Name                                     = "${local.name_prefix}_subnet_${count.index}" 
-    "kubernetes.io/role/elb"                 = "1"
-    "kubernetes.io/cluster/demo-eks-cluster" = "owned"
+    Name                             = "${local.name_prefix}_subnet_pub_${count.index}" 
+    "kubernetes.io/role/elb"         = "1"
+    "kubernetes.io/cluster/eks-demo" = "owned"
   }
 }
 

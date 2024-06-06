@@ -1,0 +1,52 @@
+name: Demo Build and Deploy
+on:
+  push:
+    branches: [main]
+    paths:
+      - demo-chart/**
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build and push
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials in ENV
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Build, configure and push to ECR
+        id: build
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          TAG: ${{ github.sha }}
+        run: |
+          helm package demo-chart --app-version $TAG --set registry=$REGISTRY
+          helm push demo-chart-0.1.0.tgz oci://$REGISTRY
+    outputs:
+      registry: ${{ steps.login-ecr.outputs.registry }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to K8s
+    steps:
+      - name: Configure AWS credentials in ENV
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Deploy Helm
+        uses: bitovi/github-actions-deploy-eks-helm@v1.2.9
+        with:
+          cluster-name: eks-demo
+          chart-repository: oci://${{ steps.login-ecr.outputs.registry }}/
+          chart-path: /
+          name: demo-chart
+          version: 0.1.0
