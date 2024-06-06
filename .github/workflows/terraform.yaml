@@ -77,3 +77,4 @@ jobs:
   deploy:
     needs: terraform
     uses: ./.github/workflows/helm-deploy.yaml
+    secrets: inherit

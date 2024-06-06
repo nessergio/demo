@@ -47,3 +47,4 @@ jobs:
   deploy:
     needs: build
     uses: ./.github/workflows/helm-deploy.yaml
+    secrets: inherit
