@@ -8,6 +8,10 @@ variable "registry" {
   default = ""
 }
 
+variable "github_arn" {
+  type = string
+}
+
 locals {
   cluster_name = "eks-demo"
   n_zones      = length(data.aws_availability_zones.available.names)

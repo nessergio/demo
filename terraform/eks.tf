@@ -66,6 +66,26 @@ resource "kubernetes_service_account" "service-account" {
   }
 }
 
+# Create Access Entry for GitHub Action user
+
+resource "aws_eks_access_entry" "github" {
+  cluster_name      = local.cluster_name
+  principal_arn     = var.github_arn
+}
+
+resource "aws_eks_access_policy_association" "github" {
+  cluster_name  = local.cluster_name
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSAdminPolicy"
+  principal_arn = var.github_arn
+
+  access_scope {
+    type       = "namespace"
+    namespaces = ["default"]
+  }
+}
+
+# Create LoadBalancer policy
+
 resource "helm_release" "lb" {
   name       = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"

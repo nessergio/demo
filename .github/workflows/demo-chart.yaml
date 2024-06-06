@@ -44,14 +44,9 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      #- name: Read kubeconfig
-      #  run: |
-      #    aws eks update-kubeconfig --name eks-demo
       - name: Helm deploy
-        uses: WyriHaximus/github-action-helm3@v3
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        with:
-          exec: aws eks update-kubeconfig --name eks-demo && helm upgrade demo --set registry=$REGISTRY --install --wait --atomic oci://$REGISTRY/demo-chart
-        #   kubeconfig: "${{ secrets.KUBE_CONFIG_DATA }}"
-        #   overrule_existing_kubeconfig: "true"
+        run: |
+          aws eks update-kubeconfig --name eks-demo
+          helm upgrade demo --set registry=$REGISTRY --install --wait --atomic oci://$REGISTRY/demo-chart
