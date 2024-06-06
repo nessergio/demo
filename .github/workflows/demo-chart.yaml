@@ -55,6 +55,6 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         with:
-          exec: helm upgrade demo -set registry=$REGISTRY --install --wait --atomic oci://$REGISTRY/demo-chart
+          exec: helm upgrade demo --set registry=$REGISTRY --install --wait --atomic oci://$REGISTRY/demo-chart
           kubeconfig: "${{ secrets.KUBE_CONFIG_DATA }}"
           overrule_existing_kubeconfig: "true"
