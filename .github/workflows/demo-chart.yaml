@@ -30,8 +30,6 @@ jobs:
         run: |
           helm package demo-chart --app-version $TAG 
           helm push demo-chart-0.1.0.tgz oci://$REGISTRY
-    outputs:
-      registry: ${{ steps.login-ecr.outputs.registry }}
 
   deploy:
     runs-on: ubuntu-latest
@@ -43,6 +41,9 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
       - name: Deploy Helm
         uses: bitovi/github-actions-deploy-eks-helm@v1.2.9
         with:
