@@ -45,11 +45,8 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
       - name: Deploy Helm
-        uses: bitovi/github-actions-deploy-eks-helm@v1.2.9
-        with:
-          values: registry=${{ steps.login-ecr.outputs.registry }}
-          cluster-name: eks-demo
-          chart-repository: oci://${{ steps.login-ecr.outputs.registry }}/
-          chart-path: /
-          name: demo-chart
-          version: 0.1.0
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          aws eks --region eu-central-1 update-kubeconfig --name eks-demo
+          helm install demo --values registry=$REGISTRY oci://${{ steps.login-ecr.outputs.registry }}/demo-chart-0.1.0
