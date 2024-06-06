@@ -49,6 +49,6 @@ jobs:
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          aws eks update-kubeconfig --name eks-demo
-          kubectl config get-contexts
+          aws eks update-kubeconfig --name eks-demo --role-arn ${{ secrets.AWS_ROLE }}
+          kubectl get svc
           helm install demo --set registry=$REGISTRY oci://$REGISTRY/demo-chart
