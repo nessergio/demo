@@ -73,3 +73,7 @@ jobs:
           terraform init -input=false
           terraform validate -no-color
           terraform ${{ github.event.inputs.action }} -input=false -auto-approve
+
+  deploy:
+    needs: terraform
+    uses: ./.github/workflows/helm-deploy.yml

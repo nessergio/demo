@@ -46,7 +46,7 @@ Basically to reproduce the env there are such steps:
 - Run terraform apply in the bootstrap folder to init S3 bucket. (For fresh install delete terraform.tfstate)
 - Either locally or using GitHub actions run terraform apply (wait 20min)
 - Login to AWS console or use AWS CLI.
-- Install helm chart
+- Install helm chart via Helm Chart action or manually:
 
 ```
 helm install --set registry=$REGISTRY demo oci://$REGISTRY/demo-chart
