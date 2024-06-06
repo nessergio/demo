@@ -1,8 +1,8 @@
-name: Demo Helm Chart
+name: "[DEMO] Helm Chart"
 on:
   workflow_dispatch:
   push:
-    branches: [feat/helmdeploy]
+    branches: [main]
     paths:
       - demo-chart/**
 permissions:
