@@ -12,8 +12,6 @@ module "eks" {
   subnet_ids = concat(aws_subnet.cluster_private[*].id, aws_subnet.cluster_public[*].id)
 
 
-  #control_plane_subnet_ids = aws_subnet.cluster_private[*].id
-
   create_kms_key              = false
   create_cloudwatch_log_group = false
   cluster_encryption_config   = {}
