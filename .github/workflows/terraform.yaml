@@ -68,6 +68,7 @@ jobs:
           TF_VAR_registry: ${{ needs.build_n_push.outputs.registry }}
           TF_VAR_environment: dev
           TF_VAR_project: demo
+          TF_VAR_github_arn: ${{ secrets.GITHUB_ARN }}
         run: |
           terraform init -input=false
           terraform validate -no-color

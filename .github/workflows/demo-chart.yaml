@@ -1,4 +1,4 @@
-name: Demo Helm Chart
+name: "[DEMO] Helm Chart"
 on:
   workflow_dispatch:
   push:
@@ -31,3 +31,22 @@ jobs:
         run: |
           helm package demo-chart --app-version $TAG 
           helm push demo-chart-0.1.0.tgz oci://$REGISTRY
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to K8s
+    needs: build
+    steps:
+      - name: Configure AWS credentials in ENV
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+      - name: Helm deploy
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          aws eks update-kubeconfig --name eks-demo
+          helm upgrade demo --set registry=$REGISTRY --install --wait --atomic oci://$REGISTRY/demo-chart

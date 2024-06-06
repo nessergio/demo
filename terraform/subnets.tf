@@ -38,7 +38,7 @@ resource "aws_route_table" "private" {
   # The routing table will have only default gateways
   route {
     cidr_block = "0.0.0.0/0" # IPv4
-    gateway_id = aws_nat_gateway.one.id
+    nat_gateway_id = aws_nat_gateway.one.id
   }
   tags = { Name = "${local.name_prefix}_private_rt" }
 }
