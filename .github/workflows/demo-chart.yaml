@@ -45,10 +45,16 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
-      - name: Deploy Helm
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      - name: Read kubeconfig
         run: |
           aws eks update-kubeconfig --name eks-demo --kubeconfig ./kubeconfig
-          kubectl get svc
-          helm install demo --set registry=$REGISTRY oci://$REGISTRY/demo-chart
+          echo 'KUBE_CONFIG_DATA<<EOF' >> $GITHUB_ENV
+          echo $(cat ./kubeconfig | base64) >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      - name: Helm deploy
+        uses: koslib/helm-eks-action@master
+        env:
+          KUBE_CONFIG_DATA: ${{ env.KUBE_CONFIG_DATA }}
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        with:
+          command: helm install demo --set registry=$REGISTRY oci://$REGISTRY/demo-chart
