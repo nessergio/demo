@@ -1,5 +1,6 @@
 name: Demo Helm Chart
 on:
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
