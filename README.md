@@ -45,11 +45,14 @@ Basically to reproduce the env there are such steps:
 - Clone the repository and change secrets.
 - Run terraform apply in the bootstrap folder to init S3 bucket. (For fresh install delete terraform.tfstate)
 - Either locally or using GitHub actions run terraform apply (wait 20min)
-- Login to AWS console or use AWS CLI.
-- Install helm chart via Helm Chart action or manually:
+- Push to repo will trigger automatic test - build - deploy process
+- Changes in helm chart will trigger repackaging and pushing to registry
+- You can run app build/deploy & helm build/deploy actions via GitHub
+- You can install "hello" helm chart to other cluster:
 
 ```
 helm install --set registry=$REGISTRY demo oci://$REGISTRY/demo-chart
 ```
 
-- Test or use created cluster
+- Login to AWS console or use AWS CLI to get external dns name.
+- Test or use created application
