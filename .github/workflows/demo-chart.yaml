@@ -34,4 +34,4 @@ jobs:
 
   deploy:
     needs: build
-    uses: ./.github/workflows/helm-deploy.yml
+    uses: ./.github/workflows/helm-deploy.yaml

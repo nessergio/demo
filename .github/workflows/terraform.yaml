@@ -76,4 +76,4 @@ jobs:
 
   deploy:
     needs: terraform
-    uses: ./.github/workflows/helm-deploy.yml
+    uses: ./.github/workflows/helm-deploy.yaml
