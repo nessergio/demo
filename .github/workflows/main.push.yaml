@@ -6,14 +6,23 @@ permissions:
   id-token: write # This is required for requesting the JWT
   contents: read # This is required for actions/checkout
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm install
+      - run: npm test
   build:
     runs-on: ubuntu-latest
     name: Build and push
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - name: Configure AWS credentials in ENV
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -29,5 +38,4 @@ jobs:
           TAG: ${{ github.sha }}
         run: |
           docker build -t $REGISTRY/demo:$TAG -t $REGISTRY/demo:dev . 
-          docker push $REGISTRY/demo --all-tags    
-          
+          docker push $REGISTRY/demo --all-tags

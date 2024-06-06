@@ -10,6 +10,11 @@ variable "cloudflare_zone_id" {
   type    = string
 }
 
+variable "cloudflare_dns_name" {
+  type = string
+  default = "demo"
+}
+
 variable "cidr_block_ipv4" {
   type    = string
   default = "172.16.0.0/16"
