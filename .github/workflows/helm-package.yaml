@@ -1,4 +1,4 @@
-name: "[DEMO] Helm Chart"
+name: "[DEMO] Helm Package"
 on:
   workflow_dispatch:
   push:
@@ -11,7 +11,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build and push
+    name: Package and push
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4

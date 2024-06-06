@@ -1,4 +1,5 @@
 # Reusable workflow to deploy a helm chart
+name: "[DEMO] Helm Deploy"
 on:
   workflow_call:
 permissions:
